@@ -71,23 +71,49 @@ let canPlaceTile = (board, pos, tile) => {
   |> loop((0, 1)); /* bottom */
   (
     horiz != Nope
-    && vert != Nope,
-    horiz != Any || vert != Any
+    && vert != Nope
+    /* horiz != Any || vert != Any */
     )
+};
+
+let isAdjacent = (board, tiles, pos, dpos) => {
+  let rec loop = (tiles, pos) => {
+    switch tiles {
+      | [] => false
+      | [_, ...rest] => {
+      switch (getTile(board, pos)) {
+        | Some(_) => true
+        | None => getTile(board, addPos(pos, (-1, 0))) != None
+        || getTile(board, addPos(pos, (1, 0))) != None
+        || getTile(board, addPos(pos, (0, 1))) != None
+        || getTile(board, addPos(pos, (0, -1))) != None
+        || loop(rest, addPos(pos, dpos))
+      }
+      }
+    }
+  };
+  loop(tiles, pos)
 };
 
 let canPlaceTiles = (board, pos, direction, tiles) => {
   let dpos = dd(direction);
 
-  let rec loop = (board, tiles, pos, hasConnected) => {
+  let rec loop = (board, tiles, pos) => {
     switch tiles {
-      | [] => hasConnected
+      | [] => Some([])
       | [tile, ...rest] => {
         switch (getTile(board, pos)) {
-          | Some(_) => loop(board, tiles, addPos(pos, dpos), hasConnected)
+          | Some(_) => loop(board, tiles, addPos(pos, dpos))
           | None => {
-            let (canPlace, isConnected) = canPlaceTile(board, pos, tile);
-            canPlace && loop(setTile(board, pos, tile), rest, addPos(pos, dpos), isConnected || hasConnected)
+            let canPlace = canPlaceTile(board, pos, tile);
+            if (canPlace) {
+ switch (loop(setTile(board, pos, tile), rest, addPos(pos, dpos))) {
+   | None => None
+   | Some(placements) => Some([(pos, tile), ...placements])
+ }
+            } else {
+              None
+            }
           }
         }
     }
@@ -95,8 +121,14 @@ let canPlaceTiles = (board, pos, direction, tiles) => {
   };
 
   switch (getTile(board, pos)) {
-    | Some(_) => false
-    | None => loop(board, tiles, pos, false)
+    | Some(_) => None
+    | None => {
+      let places = loop(board, tiles, pos);
+      switch (places) {
+        | None => None
+        | Some(places) => isAdjacent(board, tiles, pos, dpos) ? Some(places) : None
+      }
+    }
   }
 };
 
@@ -112,8 +144,9 @@ let legalPlacements = (board, direction, tiles) => {
   let num = List.length(tiles);
   for (x in x0 - num to x1 + num) {
     for (y in y0 - num to y1 + num) {
-      if (canPlaceTiles(board, (x, y), direction, tiles)) {
-        placements := [(x, y), ...placements^];
+      switch (canPlaceTiles(board, (x, y), direction, tiles)) {
+        | None => ()
+        | Some(places) => placements := [((x, y), places), ...placements^]
       }
     }
   };
@@ -128,8 +161,8 @@ let legalTilePlacements = (board, tile) => {
       switch (getTile(board, (x, y))) {
       | Some(_) => ()
       | None =>
-        let (isFree, didTouch) = canPlaceTile(board, (x, y), tile);
-        if (didTouch && isFree) {
+        let isFree = canPlaceTile(board, (x, y), tile);
+        if (isFree) {
           placements := [(x, y), ...placements^]
         }
       }

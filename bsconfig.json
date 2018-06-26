@@ -1,5 +1,5 @@
 {
-  "name": "redoc",
+  "name": "quirkle",
   "bsc-flags": "-w -27-32 -g",
   "ocaml-flags": ["-g", "-bin-annot"],
   "warnings": {
@@ -9,8 +9,7 @@
   "sources": [
     {"dir": "src", "subdirs": true}
   ],
-  "bs-dependencies": ["rex-json", "minimist.re", "pack.re"],
-  "ocaml-dependencies": ["compiler-libs", "unix", "bigarray", "str"],
+  "bs-dependencies": ["reprocessing"],
   "public": ["Main"],
   "entries": [{
     "backend": "native",
