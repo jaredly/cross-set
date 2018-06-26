@@ -9,11 +9,14 @@
   "sources": [
     {"dir": "src", "subdirs": true}
   ],
-  "bs-dependencies": ["reprocessing"],
+  "bs-dependencies": ["@jaredly/reprocessing"],
   "public": ["Main"],
   "entries": [{
     "backend": "native",
     "main-module": "Main"
+  }, {
+    "backend": "bytecode",
+    "main-module": "Hot"
   }],
   "refmt": 3
 }

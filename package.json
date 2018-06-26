@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "scripts": {
     "start": "bsb -make-world -backend native",
-    "watch": "bsb -make-world -backend native -w"
+    "watch": "bsb -make-world -backend native -w",
+    "byte": "bsb -make-world -backend bytecode -w"
   },
   "bin": "./redoc.sh",
   "keywords": [
@@ -19,7 +20,8 @@
   "author": "Jared Forsyth",
   "license": "ISC",
   "dependencies": {
-    "bs-platform": "bsansouci/bsb-native#fast",
-    "Reprocessing": "schmavery/Reprocessing"
+    "@jaredly/reprocessing": "^1.1.5-touch6",
+    "Reprocessing": "github:jaredly/reprocessing",
+    "bs-platform": "bsansouci/bsb-native#fast"
   }
 }

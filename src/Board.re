@@ -2,11 +2,22 @@
 type color = C1|C2|C3|C4|C5|C6;
 type shape = S1|S2|S3|S4|S5|S6;
 type tile = {color, shape};
-type board = array(array(option(tile)));
+/* type board = array(array(option(tile))); */
+
+module PosMap = Map.Make({
+  type t = (int, int);
+  let compare = compare;
+});
+
+type board = PosMap.t(tile);
 
 /* check place
  * currently only checking shapes
 */
+let colors = [C1,C2,C3,C4,C5,C6];
+let shapes = [S1,S2,S3,S4,S5,S6];
+
+let random = () => {color: Util.choose(colors), shape: Util.choose(shapes)};
 
 type result = Shapes(list(shape)) | Colors(list(color)) | Nope | Any;
 
@@ -20,11 +31,6 @@ let dd = d => switch d {
 };
 
 let addPos = ((a, b), (c, d)) => (a + c, b + d);
-
-module PosMap = Map.Make({
-  type t = (int, int);
-  let compare = compare;
-});
 
 /* let getTile = (board, (x, y)) => board[x][y]; */
 let getTile = (board, pos) => if (PosMap.mem(pos, board)) { Some(PosMap.find(pos, board)) } else { None };
