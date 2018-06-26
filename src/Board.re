@@ -36,12 +36,18 @@ let canPlaceTile = (board, pos, tile) => {
       | (_, None) => prev
       | (Shapes(shapes), Some({shape, color})) when shape == tile.shape => Nope
       | (Colors(colors), Some({shape, color})) when color == tile.color => Nope
+      | (Any, Some({shape, color})) when color == tile.color && shape != tile.shape => {
+          loop(addPos(curPos, dpos), dpos, Shapes([shape, tile.shape]))
+      }
       | (Shapes(shapes), Some({shape, color})) when color == tile.color => {
         if (List.mem(shape, shapes)) {
           Nope
         } else {
           loop(addPos(curPos, dpos), dpos, Shapes([shape, ...shapes]))
         }
+      }
+      | (Any, Some({shape, color})) when shape == tile.shape && color != tile.color => {
+          loop(addPos(curPos, dpos), dpos, Colors([color, tile.color]))
       }
       | (Colors(colors), Some({shape, color})) when shape == tile.shape => {
         if (List.mem(color, colors)) {
@@ -63,7 +69,11 @@ let canPlaceTile = (board, pos, tile) => {
   let vert = Any
   |> loop((0, -1)) /* top */
   |> loop((0, 1)); /* bottom */
-  (horiz != Nope && vert != Nope, horiz != Any || vert != Any)
+  (
+    horiz != Nope
+    && vert != Nope,
+    horiz != Any || vert != Any
+    )
 };
 
 let canPlaceTiles = (board, pos, direction, tiles) => {
@@ -102,9 +112,26 @@ let legalPlacements = (board, direction, tiles) => {
   let num = List.length(tiles);
   for (x in x0 - num to x1 + num) {
     for (y in y0 - num to y1 + num) {
-      Printf.printf("Check %d,%d\n", x, y);
       if (canPlaceTiles(board, (x, y), direction, tiles)) {
         placements := [(x, y), ...placements^];
+      }
+    }
+  };
+  placements^
+};
+
+let legalTilePlacements = (board, tile) => {
+  let (x0, y0, x1, y1) = currentBounds(board);
+  let placements = ref([]);
+  for (x in x0 - 1 to x1 + 1) {
+    for (y in y0 - 1 to y1 + 1) {
+      switch (getTile(board, (x, y))) {
+      | Some(_) => ()
+      | None =>
+        let (isFree, didTouch) = canPlaceTile(board, (x, y), tile);
+        if (didTouch && isFree) {
+          placements := [(x, y), ...placements^]
+        }
       }
     }
   };

@@ -1,7 +1,8 @@
 
 let board = Board.PosMap.empty;
-let board = board
-|> b => Board.setTile(b, (0, 0), {Board.color: Board.C1, shape: Board.S1})
+let single = board
+|> b => Board.setTile(b, (0, 0), {Board.color: Board.C1, shape: Board.S1});
+let board = single
 |> b => Board.setTile(b, (1, 0), {Board.color: Board.C2, shape: Board.S1})
 |> b => Board.setTile(b, (0, 1), {Board.color: Board.C1, shape: Board.S2})
 ;
@@ -56,7 +57,8 @@ let showBoard = (board, placements) => {
   Buffer.contents(b)
 };
 
-let test = Board.([{color: C1, shape: S1}]);
-let placements = Board.legalPlacements(board, Board.Left, test);
-print_endline("Hello");
+let tile = Board.{color: C3, shape: S1};
+let placements = Board.legalTilePlacements(single, tile);
+let placements = Board.legalPlacements(board, Board.Left, [tile ]);
+print_endline("Hello " ++ string_of_int(List.length(placements)));
 print_endline(showBoard(board, placements));
