@@ -59,6 +59,6 @@ let showBoard = (board, placements) => {
 
 let tile = Board.{color: C3, shape: S1};
 let placements = Board.legalTilePlacements(single, tile);
-let placements = Board.legalPlacements(board, Board.Left, [tile ]);
+let placements = Board.legalPlacements(board, Board.Left, sameColor);
 print_endline("Hello " ++ string_of_int(List.length(placements)));
 print_endline(showBoard(board, placements));
