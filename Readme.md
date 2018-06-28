@@ -1,6 +1,6 @@
 # Cross Set
 
-![screenshot](./screenshot.png)
+<img src="./screenshot.png" width=300>
 
 A game of arranging colored tiles into crosses to form sets.
 
