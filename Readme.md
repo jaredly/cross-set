@@ -1,7 +1,5 @@
 # Cross Set
 
-<img src="./screenshot.png" width=300>
-
 <img src="./screencast.gif" width=300>
 
 A game of arranging colored tiles into crosses to form sets.
