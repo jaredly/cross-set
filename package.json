@@ -1,10 +1,10 @@
 {
-  "name": "quirkle",
+  "name": "cross-set",
   "version": "0.0.1",
   "scripts": {
-    "start": "bsb -make-world -backend native",
-    "watch": "bsb -make-world -backend native -w",
-    "byte": "bsb -make-world -backend bytecode -w"
+    "start": "bsb -make-world -backend bytecode",
+    "watch": "bsb -make-world -backend bytecode -w",
+    "hot": "./lib/bs/bytecode/hot.byte"
   },
   "bin": "./redoc.sh",
   "keywords": [
