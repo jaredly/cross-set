@@ -19,7 +19,8 @@ let showShape = (s, x, y, size, env) => {
   };
   Reprocessing.Draw.rect(~pos=(x + a, y + b), ~width=w, ~height=w, env)
 };
-let colorName = c => Board.(switch c {
+
+/* let colorName = c => Board.(switch c {
   | Board.C1 => "r"
   | C2 => "g"
   | C3 => "b"
@@ -34,9 +35,9 @@ let shapeName = s => Board.(switch s {
   | S4 => "%"
   | S5 => "^"
   | S6 => "&"
-});
+}); */
 
-let showBoard = (board, placements) => {
+/* let showBoard = (board, placements) => {
   let (x0, y0, x1, y1) = Board.currentBounds(board);
   let b = Buffer.create(5);
   for (x in x0 - 4 to x1 + 4) {
@@ -55,7 +56,7 @@ let showBoard = (board, placements) => {
     Buffer.add_string(b, "\n");
   };
   Buffer.contents(b)
-};
+}; */
 
 let withAlpha = ({Reprocessing_Common.r, g, b, a}, alpha) => {Reprocessing_Common.r, g, b, a: a *. alpha};
 
@@ -131,6 +132,14 @@ let mouseInTile = ((ox, oy), (mx, my), (x, y), env) => {
   my >= y && my <= y + size
 };
 
+let swapTiles = (tiles, x0, x1) => {
+  let arr = Array.of_list(tiles);
+  let tile = arr[x1];
+  arr[x1] = arr[x0];
+  arr[x0] = tile;
+  Array.to_list(arr)
+};
+
 Reprocessing.run(
   ~setup=env => {
     Reprocessing.Env.size(~width=400, ~height=400, env);
@@ -167,9 +176,16 @@ Reprocessing.run(
           | Some((start, len)) => {...state, selection: start < final ? Some((start, final - start + 1)) : Some((final, start - final + 1))}
         }
       } else {
-        {
-          ...state,
-          selection: Some((my / size, 1))
+        switch (state.selection) {
+          | Some((start, 1)) => {
+            print_endline("swap");
+            {
+            ...state,
+            tiles: swapTiles(state.tiles, start, my / size),
+            selection: Some((my / size, 1))
+          }
+          }
+          | _ => {...state, selection: Some((my / size, 1))}
         }
       }
     } else {
