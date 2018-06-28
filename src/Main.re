@@ -20,44 +20,6 @@ let showShape = (s, x, y, size, env) => {
   Reprocessing.Draw.rect(~pos=(x + a, y + b), ~width=w, ~height=w, env)
 };
 
-/* let colorName = c => Board.(switch c {
-  | Board.C1 => "r"
-  | C2 => "g"
-  | C3 => "b"
-  | C4 => "w"
-  | C5 => "y"
-  | C6 => "k"
-});
-let shapeName = s => Board.(switch s {
-  | Board.S1 => "*"
-  | S2 => "/"
-  | S3 => "\\"
-  | S4 => "%"
-  | S5 => "^"
-  | S6 => "&"
-}); */
-
-/* let showBoard = (board, placements) => {
-  let (x0, y0, x1, y1) = Board.currentBounds(board);
-  let b = Buffer.create(5);
-  for (x in x0 - 4 to x1 + 4) {
-    Buffer.add_string(b, " | ");
-    for (y in y0 - 4 to y1 + 4) {
-      if (List.mem((x, y), placements)) {
-        Buffer.add_string(b, "()")
-      } else {
-        switch (Board.getTile(board, (x, y))) {
-          | None => Buffer.add_string(b, "  ")
-          | Some({Board.color, shape}) => Buffer.add_string(b, colorName(color) ++ shapeName(shape))
-        }
-      };
-      Buffer.add_string(b, " | ");
-    };
-    Buffer.add_string(b, "\n");
-  };
-  Buffer.contents(b)
-}; */
-
 let withAlpha = ({Reprocessing_Common.r, g, b, a}, alpha) => {Reprocessing_Common.r, g, b, a: a *. alpha};
 
 open Reprocessing;
@@ -77,29 +39,6 @@ type state = {
   dragPos: option(((int, int), (int, int))),
   offset: (int, int),
 };
-
-/* let board = Board.PosMap.empty;
-let single = board
-|> b => Board.setTile(b, (0, 0), {Board.color: Board.C1, shape: Board.S1});
-let board = single
-|> b => Board.setTile(b, (1, 0), {Board.color: Board.C2, shape: Board.S1})
-|> b => Board.setTile(b, (0, 1), {Board.color: Board.C1, shape: Board.S2})
-;
-
-let sameColor = Board.([
-  {color: C1, shape: S2},
-  {color: C1, shape: S4},
-  {color: C1, shape: S5},
-]);
-
-let sameShape = Board.([
-  {color: C2, shape: S1},
-  {color: C3, shape: S1},
-  {color: C4, shape: S1},
-]);
-
-    let tile = Board.{color: C3, shape: S1};
-let tiles = [tile]; */
 
 let rec subList = (items, start, num) => start <= 0
 ? (num == 0 ? [] : switch items {
@@ -140,6 +79,13 @@ let swapTiles = (tiles, x0, x1) => {
   Array.to_list(arr)
 };
 
+let togglePos = env => (Env.width(env) - size - size, 0);
+let hitsToggle = env => {
+  let (mx, my) = Env.mouse(env);
+  let (x, y) = togglePos(env);
+  mx >= x && mx <= x + size && my >= y && my <= y + size
+};
+
 Reprocessing.run(
   ~setup=env => {
     Reprocessing.Env.size(~width=400, ~height=400, env);
@@ -168,7 +114,9 @@ Reprocessing.run(
   ~mouseDown=(state, env) => {
     let (mx, my) = Env.mouse(env);
     let numTiles = List.length(state.tiles);
-    if (mx > Env.width(env) - size && my < numTiles * size) {
+    if (hitsToggle(env)) {
+      {...state, direction: state.direction == Board.Down ? Board.Right : Board.Down}
+    } else if (mx > Env.width(env) - size && my < numTiles * size) {
       if (Env.key(Reprocessing.Events.LeftShift, env) || Env.key(Reprocessing.Events.RightShift, env)) {
         let final = my / size;
         switch (state.selection) {
@@ -177,8 +125,7 @@ Reprocessing.run(
         }
       } else {
         switch (state.selection) {
-          | Some((start, 1)) => {
-            print_endline("swap");
+          | Some((start, 1)) when Env.key(Events.LeftOsKey, env) || Env.key(Events.RightOsKey, env) => {
             {
             ...state,
             tiles: swapTiles(state.tiles, start, my / size),
@@ -198,7 +145,7 @@ Reprocessing.run(
           let placements = Board.legalPlacements(state.board, state.direction, selection);
           let rec loop = placements => {
             switch placements {
-              | [] => {...state, selection: None, dragPos: Some(((mx,my), state.offset))}
+              | [] => {...state, dragPos: Some(((mx,my), state.offset))}
               | [(pos, tiles), ...rest] => {
                 if (mouseInTile(state.offset, (mx, my), pos, env)) {
                   {
@@ -287,6 +234,18 @@ Reprocessing.run(
           Draw.rect(~pos=(x, y), ~width=size, ~height=size, env)
         }
       }
+    };
+
+    Draw.noStroke(env);
+    Draw.fill(Utils.color(~r=50, ~g=250, ~b=250, ~a=255), env);
+    Draw.rect(~pos=togglePos(env), ~width=size, ~height=size, env);
+    Draw.fill(Utils.color(~r=0, ~g=150, ~b=150, ~a=255), env);
+    let (x, y) = togglePos(env);
+    if (state.direction == Board.Down) {
+      Draw.rect(~pos=(x + size / 3, y), ~width=size/3, ~height=size, env);
+    } else {
+      Draw.rect(~pos=(x, y + size / 3), ~width=size, ~height=size/3, env);
+
     };
 
     state
