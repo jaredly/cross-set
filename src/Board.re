@@ -4,6 +4,24 @@ type shape = S1|S2|S3|S4|S5|S6;
 type tile = {color, shape};
 /* type board = array(array(option(tile))); */
 
+let shapeIndex = s => switch s {
+  | S1 => 0
+  | S2 => 1
+  | S3 => 2
+  | S4 => 3
+  | S5 => 4
+  | S6 => 5
+};
+
+let colorIndex = s => switch s {
+  | C1 => 0
+  | C2 => 1
+  | C3 => 2
+  | C4 => 3
+  | C5 => 4
+  | C6 => 5
+};
+
 module PosMap = Map.Make({
   type t = (int, int);
   let compare = compare;

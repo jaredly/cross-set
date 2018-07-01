@@ -22,16 +22,29 @@ let showShape = (s, x, y, size, env) => {
 
 let withAlpha = ({Reprocessing_Common.r, g, b, a}, alpha) => {Reprocessing_Common.r, g, b, a: a *. alpha};
 
+
 open Reprocessing;
-let drawTile = ({Board.shape, color}, (x, y), size, margin, env) => {
-  Reprocessing.Draw.noStroke(env);
-  Reprocessing.Draw.fill(colorColor(color), env);
-  Reprocessing.Draw.rect(~pos=(x + margin, y + margin), ~width=size - margin * 2, ~height=size - margin * 2, env);
-  Reprocessing.Draw.fill(Reprocessing.Constants.white, env);
-  showShape(shape, x + margin, y + margin, size - margin * 2, env);
+let drawTile = (spriteSheet, {Board.shape, color}, (x, y), size, margin, env) => {
+  let texX = Board.shapeIndex(shape) * 45;
+  let texY = Board.colorIndex(color) * 45;
+  Draw.subImage(
+    spriteSheet,
+    ~pos=(x + margin, y + margin),
+    ~width=size - margin * 2, ~height=size - margin*2,
+    ~texPos=(texX, texY),
+    ~texWidth=45,
+    ~texHeight=45,
+    env
+  );
+  /* Draw.noStroke(env);
+  Draw.fill(colorColor(color), env);
+  Draw.rect(~pos=(x + margin, y + margin), ~width=size - margin * 2, ~height=size - margin * 2, env);
+  Draw.fill(Constants.white, env);
+  showShape(shape, x + margin, y + margin, size - margin * 2, env); */
 };
 
 type state = {
+  spriteSheet: Reprocessing.imageT,
   board: Board.board,
   tiles: list(Board.tile),
   selection: option((int, int)),
@@ -93,6 +106,7 @@ Reprocessing.run(
       board: Board.PosMap.empty |> b => Board.setTile(b, (0, 0), Board.random()),
       tiles: [Board.random(), Board.random(), Board.random(), Board.random(), Board.random(), Board.random()],
       selection: Some((0, 2)),
+      spriteSheet: Reprocessing.Draw.loadImage(~filename="Tiles.png", env),
       direction: Board.Down,
       offset: (200, 200),
       dragPos: None,
@@ -178,7 +192,7 @@ Reprocessing.run(
           switch (Board.getTile(state.board, (x, y))) {
             | None => ()
             | Some(tile) => {
-              drawTile(tile, (wx(x), wy(y)), size, 0, env)
+              drawTile(state.spriteSheet, tile, (wx(x), wy(y)), size, 0, env)
             }
           }
       };
@@ -202,7 +216,7 @@ Reprocessing.run(
           if (mx >= wx(x) && mx < wx(x) + size && my >= wy(y) && my <= wy(y) + size) {
 
           tiles |> List.iter((((x,y), tile)) => {
-            drawTile(tile, (wx(x), wy(y)), size, 4, env)
+            drawTile(state.spriteSheet, tile, (wx(x), wy(y)), size, 4, env)
           })
           }
         });
@@ -212,7 +226,7 @@ Reprocessing.run(
     let numTiles = List.length(state.tiles);
     state.tiles |> List.iteri((i, tile) => {
       let pos = (Env.height(env) - size, i * size);
-      drawTile(tile, pos, size, 2, env);
+      drawTile(state.spriteSheet, tile, pos, size, 2, env);
       if (mx > Env.width(env) - size && my < numTiles * size) {
         let final = my / size;
       if (i == final) {

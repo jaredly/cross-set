@@ -12,7 +12,7 @@
   "bs-dependencies": ["@jaredly/reprocessing"],
   "public": ["Main"],
   "entries": [{
-    "backend": "native",
+    "backend": "bytecode",
     "main-module": "Main"
   }, {
     "backend": "bytecode",
