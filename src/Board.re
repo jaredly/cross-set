@@ -1,7 +1,7 @@
 
 type color = C1|C2|C3|C4|C5|C6;
 type shape = S1|S2|S3|S4|S5|S6;
-type tile = {color, shape};
+type tile = {color, shape, id: int};
 /* type board = array(array(option(tile))); */
 
 let shapeIndex = s => switch s {
@@ -35,7 +35,15 @@ type board = PosMap.t(tile);
 let colors = [C1,C2,C3,C4,C5,C6];
 let shapes = [S1,S2,S3,S4,S5,S6];
 
-let random = () => {color: Util.choose(colors), shape: Util.choose(shapes)};
+let allTiles = () => {
+  List.concat([
+    colors |> List.mapi((ci, color) => shapes |> List.mapi((si, shape) => {shape, color, id: ci * 6 + si})),
+    colors |> List.mapi((ci, color) => shapes |> List.mapi((si, shape) => {shape, color, id: 6 * 6 + ci * 6 + si})),
+    colors |> List.mapi((ci, color) => shapes |> List.mapi((si, shape) => {shape, color, id: 6 * 6 * 2 + ci * 6 + si})),
+  ]) |> List.concat;
+};
+
+/* let random = () => {color: Util.choose(colors), shape: Util.choose(shapes)}; */
 
 type result = Shapes(list(shape)) | Colors(list(color)) | Nope | Any;
 
