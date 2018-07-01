@@ -15,6 +15,9 @@
     "backend": "bytecode",
     "main-module": "Main"
   }, {
+    "backend": "native",
+    "main-module": "Main"
+  }, {
     "backend": "bytecode",
     "main-module": "Hot"
   }],
