@@ -10,6 +10,7 @@
     {"dir": "src", "subdirs": true}
   ],
   "bs-dependencies": ["@jaredly/reprocessing"],
+  "ppx-flags": ["ppx_magic_native"],
   "public": ["Main"],
   "entries": [{
     "backend": "bytecode",

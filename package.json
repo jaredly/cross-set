@@ -22,6 +22,8 @@
   "dependencies": {
     "@jaredly/reprocessing": "^1.1.5-touch6",
     "Reprocessing": "github:jaredly/reprocessing",
-    "bs-platform": "bsansouci/bsb-native#fast"
-  }
+    "bs-platform": "bsansouci/bsb-native#fast",
+    "ppx_autoserialize": "file:./../../tools/ppx_autoserialize"
+  },
+  "// ppx_autoserialize": "github:jaredly/ppx_autoserialize"
 }

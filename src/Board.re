@@ -1,6 +1,9 @@
 
+[@to.yojson][@from.yojson]
 type color = C1|C2|C3|C4|C5|C6;
+[@to.yojson][@from.yojson]
 type shape = S1|S2|S3|S4|S5|S6;
+[@to.yojson][@from.yojson]
 type tile = {color, shape, id: int};
 /* type board = array(array(option(tile))); */
 
@@ -22,12 +25,37 @@ let colorIndex = s => switch s {
   | C6 => 5
 };
 
+[@to.yojson][@from.yojson]
+type pair = (int, int);
+
 module PosMap = Map.Make({
-  type t = (int, int);
+  type t = pair;
   let compare = compare;
 });
 
 type board = PosMap.t(tile);
+
+let getTile = (board, pos) => if (PosMap.mem(pos, board)) { Some(PosMap.find(pos, board)) } else { None };
+let setTile = (board, pos, tile) => PosMap.add(pos, tile, board);
+
+let board__to_yojson = board => {
+  let items = PosMap.fold((k, v, res) => [pair__to_yojson(k), tile__to_yojson(v), ...res], board, []);
+  `List(items)
+};
+let board__from_yojson = t => switch t {
+  | `List(items) => {
+    let rec loop = (board, items) => switch items {
+      | [] => Some(board)
+      | [k, v, ...rest] => switch (pair__from_yojson(k), tile__from_yojson(v)) {
+        | (Some(k), Some(v)) => loop(setTile(board, k, v), rest)
+        | _ => None
+      }
+      | _ => None
+    };
+    loop(PosMap.empty, items)
+  }
+  | _ => None
+};
 
 /* check place
  * currently only checking shapes
@@ -43,10 +71,9 @@ let allTiles = () => {
   ]) |> List.concat;
 };
 
-/* let random = () => {color: Util.choose(colors), shape: Util.choose(shapes)}; */
-
 type result = Shapes(list(shape)) | Colors(list(color)) | Nope | Any;
 
+[@to.yojson][@from.yojson]
 type direction = Up | Down | Right | Left;
 
 let dd = d => switch d {
@@ -57,10 +84,6 @@ let dd = d => switch d {
 };
 
 let addPos = ((a, b), (c, d)) => (a + c, b + d);
-
-/* let getTile = (board, (x, y)) => board[x][y]; */
-let getTile = (board, pos) => if (PosMap.mem(pos, board)) { Some(PosMap.find(pos, board)) } else { None };
-let setTile = (board, pos, tile) => PosMap.add(pos, tile, board);
 
 let canPlaceTile = (board, pos, tile) => {
   let rec loop = (curPos, dpos, prev) => {
